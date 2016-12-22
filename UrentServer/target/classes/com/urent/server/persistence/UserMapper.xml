@@ -1,0 +1,94 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+
+<mapper namespace="com.urent.server.persistence.UserMapper">
+
+    <select id="getUserList"  parameterType="map" resultType="com.urent.server.domain.User">
+    SELECT
+        *
+    FROM `user`
+    <where>
+        <if test="name != null">name like #{name}"%"</if>
+        <if test="mobile != null">AND mobile like #{mobile}"%"</if>
+        <if test="active != null">AND active = #{active}</if>
+        <if test="idCardNumber != null">AND idCardNumber like #{idCardNumber}"%"</if>
+        <if test="createDateBegin != null">AND createDate > #{createDateBegin}</if>
+        <if test="createDateEnd != null">AND #{createDateEnd}  + INTERVAL 1 DAY >  createDate </if>
+        <if test="updateDateBegin != null">AND updateDate > #{updateDateBegin}</if>
+        <if test="updateDateEnd != null"> AND #{updateDateEnd}  + INTERVAL 1 DAY >  updateDate </if>
+    </where>
+        <if test="sort != null">
+            ORDER BY ${sort.property} ${sort.direction}
+        </if>
+        <if test="start != null">
+            LIMIT #{start}, #{limit}
+        </if>
+  </select>
+
+    <select id="getUserById" parameterType="long" resultType="com.urent.server.domain.User">
+        SELECT
+          *
+        FROM `user`
+          where id = #{id}
+    </select>
+
+    <select id="getUserByMobile" parameterType="String" resultType="com.urent.server.domain.User">
+        SELECT
+          *
+        FROM `user`
+          where mobile = #{mobile}
+    </select>
+
+    <select id="getUserByIdCardNumber" parameterType="String" resultType="com.urent.server.domain.User">
+        SELECT
+        *
+        FROM `user`
+        where idCardNumber = #{idCardNumber}
+    </select>
+
+    <select id="getUserCount"  parameterType="map" resultType="long">
+    SELECT
+         count(1)
+    FROM `user`
+        <where>
+            <if test="name != null">name like #{name}"%"</if>
+            <if test="mobile != null">AND mobile like #{mobile}"%"</if>
+            <if test="active != null">AND active = #{active}</if>
+            <if test="idCardNumber != null">AND idCardNumber like #{idCardNumber}"%"</if>
+            <if test="createDateBegin != null">AND createDate > #{createDateBegin}</if>
+            <if test="createDateEnd != null">AND #{createDateEnd} + INTERVAL 1 DAY > createDate </if>
+            <if test="updateDateBegin != null">AND updateDate > #{updateDateBegin}</if>
+            <if test="updateDateEnd != null"> AND #{updateDateEnd} + INTERVAL 1 DAY > updateDate </if>
+        </where>
+  </select>
+
+    <insert id="addUser" parameterType="com.urent.server.domain.User" useGeneratedKeys="true" keyProperty="id">
+        insert INTO
+        `user`(mobile, name, nickname,idCardNumber, password, gender, headerImageId, lastLoginDevice, active, messageOption, createDate, updateDate)
+        VALUES (#{mobile}, #{name}, #{nickname},#{idCardNumber}, #{password}, #{gender}, #{headerImageId}, #{lastLoginDevice}, #{active}, #{messageOption}, #{createDate}, #{updateDate})
+    </insert>
+
+    <update id="updateUser" parameterType="com.urent.server.domain.User">
+        update `user`
+        <set>
+        <if test="mobile!=null">mobile = #{mobile},</if>
+        <if test="name!=null">name = #{name},</if>
+        <if test="nickname!=null">nickname = #{nickname},</if>
+        <if test="password!=null">password = #{password},</if>
+        <if test="gender!=null">gender = #{gender},</if>
+        <if test="idCardNumber!=null">idCardNumber = #{idCardNumber},</if>
+        <if test="verificationStatus">verificationStatus=#{verificationStatus},</if>
+        <if test="headerImageId!=null">headerImageId = #{headerImageId},</if>
+        <if test="lastLoginDevice!=null">lastLoginDevice = #{lastLoginDevice},</if>
+        <if test="active!=null">active = #{active},</if>
+        <if test="messageOption!=null">messageOption = #{messageOption},</if>
+        <if test="updateDate!=null">updateDate = #{updateDate}</if>
+        </set>
+        WHERE
+        id = #{id}
+    </update>
+
+
+</mapper>

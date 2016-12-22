@@ -1,0 +1,24 @@
+{
+    "keyId": 11,
+    "disposableLockWord": "1234567890abcdef",
+    "constantLockWord": null
+}
+
+{
+    "keyId": 11,
+    "disposableLockWord": "1234567890abcdef",
+    "constantLockWord": "1472583690qwerty"
+}
+
+
+{
+     "keyId": 11,
+     "disposableLockWord": null,
+     "constantLockWord": "1472583690qwerty"
+ }
+
+{
+    "keyId": 11,
+    "disposableLockWord": null,
+    "constantLockWord": null
+}

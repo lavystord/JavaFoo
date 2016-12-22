@@ -1,0 +1,232 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project name="module_urent-server" default="compile.module.urent-server">
+  <dirname property="module.urent-server.basedir" file="${ant.file.module_urent-server}"/>
+  
+  <property name="module.jdk.home.urent-server" value="${jdk.home.1.8}"/>
+  <property name="module.jdk.bin.urent-server" value="${jdk.bin.1.8}"/>
+  <property name="module.jdk.classpath.urent-server" value="jdk.classpath.1.8"/>
+  
+  <property name="compiler.args.urent-server" value="-encoding UTF-8 -source 1.7 -target 1.7 ${compiler.args}"/>
+  
+  <property name="urent-server.output.dir" value="${module.urent-server.basedir}/target/classes"/>
+  <property name="urent-server.testoutput.dir" value="${module.urent-server.basedir}/target/test-classes"/>
+  
+  <path id="urent-server.module.bootclasspath">
+    <!-- Paths to be included in compilation bootclasspath -->
+  </path>
+  
+  <path id="urent-server.module.production.classpath">
+    <path refid="${module.jdk.classpath.urent-server}"/>
+    <path refid="library.maven:_org.springframework:spring-core:4.1.1.release.classpath"/>
+    <path refid="library.maven:_commons-logging:commons-logging:1.1.3.classpath"/>
+    <path refid="library.maven:_org.springframework:spring-web:4.1.1.release.classpath"/>
+    <path refid="library.maven:_org.springframework:spring-aop:4.1.1.release.classpath"/>
+    <path refid="library.maven:_aopalliance:aopalliance:1.0.classpath"/>
+    <path refid="library.maven:_org.springframework:spring-beans:4.1.1.release.classpath"/>
+    <path refid="library.maven:_org.springframework:spring-context:4.1.1.release.classpath"/>
+    <path refid="library.maven:_org.apache.tomcat:tomcat-servlet-api:7.0.30.classpath"/>
+    <path refid="library.maven:_javax.servlet.jsp:jsp-api:2.1.classpath"/>
+    <path refid="library.maven:_org.springframework:spring-webmvc:4.1.1.release.classpath"/>
+    <path refid="library.maven:_org.springframework:spring-expression:4.1.1.release.classpath"/>
+    <path refid="library.maven:_org.springframework:spring-jdbc:4.1.1.release.classpath"/>
+    <path refid="library.maven:_org.springframework:spring-tx:4.1.1.release.classpath"/>
+    <path refid="library.maven:_org.mybatis:mybatis-spring:1.0.1.classpath"/>
+    <path refid="library.maven:_org.mybatis:mybatis:3.0.5.classpath"/>
+    <path refid="library.maven:_org.hibernate:hibernate-validator:4.3.2.final.classpath"/>
+    <path refid="library.maven:_javax.validation:validation-api:1.0.0.ga.classpath"/>
+    <path refid="library.maven:_org.jboss.logging:jboss-logging:3.1.0.cr2.classpath"/>
+    <path refid="library.maven:_mysql:mysql-connector-java:5.1.29.classpath"/>
+    <path refid="library.maven:_log4j:log4j:1.2.16.classpath"/>
+    <path refid="library.maven:_com.fasterxml.jackson.core:jackson-databind:2.3.2.classpath"/>
+    <path refid="library.maven:_com.fasterxml.jackson.core:jackson-annotations:2.3.0.classpath"/>
+    <path refid="library.maven:_com.fasterxml.jackson.core:jackson-core:2.3.2.classpath"/>
+    <path refid="library.maven:_com.fasterxml.jackson.datatype:jackson-datatype-joda:2.3.2.classpath"/>
+    <path refid="library.maven:_joda-time:joda-time:2.1.classpath"/>
+    <path refid="library.maven:_commons-fileupload:commons-fileupload:1.2.2.classpath"/>
+    <path refid="library.maven:_commons-io:commons-io:2.4.classpath"/>
+  </path>
+  
+  <path id="urent-server.runtime.production.module.classpath">
+    <pathelement location="${urent-server.output.dir}"/>
+    <path refid="library.maven:_org.springframework:spring-core:4.1.1.release.classpath"/>
+    <path refid="library.maven:_commons-logging:commons-logging:1.1.3.classpath"/>
+    <path refid="library.maven:_org.springframework:spring-web:4.1.1.release.classpath"/>
+    <path refid="library.maven:_org.springframework:spring-aop:4.1.1.release.classpath"/>
+    <path refid="library.maven:_aopalliance:aopalliance:1.0.classpath"/>
+    <path refid="library.maven:_org.springframework:spring-beans:4.1.1.release.classpath"/>
+    <path refid="library.maven:_org.springframework:spring-context:4.1.1.release.classpath"/>
+    <path refid="library.maven:_org.springframework:spring-webmvc:4.1.1.release.classpath"/>
+    <path refid="library.maven:_org.springframework:spring-expression:4.1.1.release.classpath"/>
+    <path refid="library.maven:_org.springframework:spring-jdbc:4.1.1.release.classpath"/>
+    <path refid="library.maven:_org.springframework:spring-tx:4.1.1.release.classpath"/>
+    <path refid="library.maven:_org.mybatis:mybatis-spring:1.0.1.classpath"/>
+    <path refid="library.maven:_org.mybatis:mybatis:3.0.5.classpath"/>
+    <path refid="library.maven:_org.hibernate:hibernate-validator:4.3.2.final.classpath"/>
+    <path refid="library.maven:_javax.validation:validation-api:1.0.0.ga.classpath"/>
+    <path refid="library.maven:_org.jboss.logging:jboss-logging:3.1.0.cr2.classpath"/>
+    <path refid="library.maven:_mysql:mysql-connector-java:5.1.29.classpath"/>
+    <path refid="library.maven:_log4j:log4j:1.2.16.classpath"/>
+    <path refid="library.maven:_com.fasterxml.jackson.core:jackson-databind:2.3.2.classpath"/>
+    <path refid="library.maven:_com.fasterxml.jackson.core:jackson-annotations:2.3.0.classpath"/>
+    <path refid="library.maven:_com.fasterxml.jackson.core:jackson-core:2.3.2.classpath"/>
+    <path refid="library.maven:_com.fasterxml.jackson.datatype:jackson-datatype-joda:2.3.2.classpath"/>
+    <path refid="library.maven:_joda-time:joda-time:2.1.classpath"/>
+    <path refid="library.maven:_commons-fileupload:commons-fileupload:1.2.2.classpath"/>
+    <path refid="library.maven:_commons-io:commons-io:2.4.classpath"/>
+  </path>
+  
+  <path id="urent-server.module.classpath">
+    <path refid="${module.jdk.classpath.urent-server}"/>
+    <pathelement location="${urent-server.output.dir}"/>
+    <path refid="library.maven:_org.springframework:spring-core:4.1.1.release.classpath"/>
+    <path refid="library.maven:_commons-logging:commons-logging:1.1.3.classpath"/>
+    <path refid="library.maven:_org.springframework:spring-web:4.1.1.release.classpath"/>
+    <path refid="library.maven:_org.springframework:spring-aop:4.1.1.release.classpath"/>
+    <path refid="library.maven:_aopalliance:aopalliance:1.0.classpath"/>
+    <path refid="library.maven:_org.springframework:spring-beans:4.1.1.release.classpath"/>
+    <path refid="library.maven:_org.springframework:spring-context:4.1.1.release.classpath"/>
+    <path refid="library.maven:_org.apache.tomcat:tomcat-servlet-api:7.0.30.classpath"/>
+    <path refid="library.maven:_javax.servlet.jsp:jsp-api:2.1.classpath"/>
+    <path refid="library.maven:_org.springframework:spring-webmvc:4.1.1.release.classpath"/>
+    <path refid="library.maven:_org.springframework:spring-expression:4.1.1.release.classpath"/>
+    <path refid="library.maven:_org.springframework:spring-jdbc:4.1.1.release.classpath"/>
+    <path refid="library.maven:_org.springframework:spring-tx:4.1.1.release.classpath"/>
+    <path refid="library.maven:_org.springframework:spring-test:4.1.1.release.classpath"/>
+    <path refid="library.maven:_junit:junit:4.11.classpath"/>
+    <path refid="library.maven:_com.jayway.jsonpath:json-path:0.9.1.classpath"/>
+    <path refid="library.maven:_net.minidev:json-smart:1.2.classpath"/>
+    <path refid="library.maven:_org.slf4j:slf4j-api:1.7.5.classpath"/>
+    <path refid="library.maven:_com.jayway.jsonpath:json-path-assert:0.9.1.classpath"/>
+    <path refid="library.maven:_org.hamcrest:hamcrest-library:1.3.classpath"/>
+    <path refid="library.maven:_org.hamcrest:hamcrest-core:1.3.classpath"/>
+    <path refid="library.maven:_org.mybatis:mybatis-spring:1.0.1.classpath"/>
+    <path refid="library.maven:_org.mybatis:mybatis:3.0.5.classpath"/>
+    <path refid="library.maven:_org.hibernate:hibernate-validator:4.3.2.final.classpath"/>
+    <path refid="library.maven:_javax.validation:validation-api:1.0.0.ga.classpath"/>
+    <path refid="library.maven:_org.jboss.logging:jboss-logging:3.1.0.cr2.classpath"/>
+    <path refid="library.maven:_mysql:mysql-connector-java:5.1.29.classpath"/>
+    <path refid="library.maven:_log4j:log4j:1.2.16.classpath"/>
+    <path refid="library.maven:_com.fasterxml.jackson.core:jackson-databind:2.3.2.classpath"/>
+    <path refid="library.maven:_com.fasterxml.jackson.core:jackson-annotations:2.3.0.classpath"/>
+    <path refid="library.maven:_com.fasterxml.jackson.core:jackson-core:2.3.2.classpath"/>
+    <path refid="library.maven:_com.fasterxml.jackson.datatype:jackson-datatype-joda:2.3.2.classpath"/>
+    <path refid="library.maven:_joda-time:joda-time:2.1.classpath"/>
+    <path refid="library.maven:_commons-fileupload:commons-fileupload:1.2.2.classpath"/>
+    <path refid="library.maven:_commons-io:commons-io:2.4.classpath"/>
+  </path>
+  
+  <path id="urent-server.runtime.module.classpath">
+    <pathelement location="${urent-server.testoutput.dir}"/>
+    <pathelement location="${urent-server.output.dir}"/>
+    <path refid="library.maven:_org.springframework:spring-core:4.1.1.release.classpath"/>
+    <path refid="library.maven:_commons-logging:commons-logging:1.1.3.classpath"/>
+    <path refid="library.maven:_org.springframework:spring-web:4.1.1.release.classpath"/>
+    <path refid="library.maven:_org.springframework:spring-aop:4.1.1.release.classpath"/>
+    <path refid="library.maven:_aopalliance:aopalliance:1.0.classpath"/>
+    <path refid="library.maven:_org.springframework:spring-beans:4.1.1.release.classpath"/>
+    <path refid="library.maven:_org.springframework:spring-context:4.1.1.release.classpath"/>
+    <path refid="library.maven:_org.apache.tomcat:tomcat-servlet-api:7.0.30.classpath"/>
+    <path refid="library.maven:_javax.servlet.jsp:jsp-api:2.1.classpath"/>
+    <path refid="library.maven:_org.springframework:spring-webmvc:4.1.1.release.classpath"/>
+    <path refid="library.maven:_org.springframework:spring-expression:4.1.1.release.classpath"/>
+    <path refid="library.maven:_org.springframework:spring-jdbc:4.1.1.release.classpath"/>
+    <path refid="library.maven:_org.springframework:spring-tx:4.1.1.release.classpath"/>
+    <path refid="library.maven:_org.springframework:spring-test:4.1.1.release.classpath"/>
+    <path refid="library.maven:_junit:junit:4.11.classpath"/>
+    <path refid="library.maven:_com.jayway.jsonpath:json-path:0.9.1.classpath"/>
+    <path refid="library.maven:_net.minidev:json-smart:1.2.classpath"/>
+    <path refid="library.maven:_org.slf4j:slf4j-api:1.7.5.classpath"/>
+    <path refid="library.maven:_com.jayway.jsonpath:json-path-assert:0.9.1.classpath"/>
+    <path refid="library.maven:_org.hamcrest:hamcrest-library:1.3.classpath"/>
+    <path refid="library.maven:_org.hamcrest:hamcrest-core:1.3.classpath"/>
+    <path refid="library.maven:_org.mybatis:mybatis-spring:1.0.1.classpath"/>
+    <path refid="library.maven:_org.mybatis:mybatis:3.0.5.classpath"/>
+    <path refid="library.maven:_org.hibernate:hibernate-validator:4.3.2.final.classpath"/>
+    <path refid="library.maven:_javax.validation:validation-api:1.0.0.ga.classpath"/>
+    <path refid="library.maven:_org.jboss.logging:jboss-logging:3.1.0.cr2.classpath"/>
+    <path refid="library.maven:_mysql:mysql-connector-java:5.1.29.classpath"/>
+    <path refid="library.maven:_log4j:log4j:1.2.16.classpath"/>
+    <path refid="library.maven:_com.fasterxml.jackson.core:jackson-databind:2.3.2.classpath"/>
+    <path refid="library.maven:_com.fasterxml.jackson.core:jackson-annotations:2.3.0.classpath"/>
+    <path refid="library.maven:_com.fasterxml.jackson.core:jackson-core:2.3.2.classpath"/>
+    <path refid="library.maven:_com.fasterxml.jackson.datatype:jackson-datatype-joda:2.3.2.classpath"/>
+    <path refid="library.maven:_joda-time:joda-time:2.1.classpath"/>
+    <path refid="library.maven:_commons-fileupload:commons-fileupload:1.2.2.classpath"/>
+    <path refid="library.maven:_commons-io:commons-io:2.4.classpath"/>
+  </path>
+  
+  
+  <patternset id="excluded.from.module.urent-server">
+    <patternset refid="ignored.files"/>
+  </patternset>
+  
+  <patternset id="excluded.from.compilation.urent-server">
+    <patternset refid="excluded.from.module.urent-server"/>
+  </patternset>
+  
+  <path id="urent-server.module.sourcepath">
+    <dirset dir="${module.urent-server.basedir}">
+      <include name="src/main/java"/>
+      <include name="src/main/resources"/>
+    </dirset>
+  </path>
+  
+  <path id="urent-server.module.test.sourcepath">
+    <dirset dir="${module.urent-server.basedir}">
+      <include name="src/test/java"/>
+      <include name="src/test/resources"/>
+    </dirset>
+  </path>
+  
+  
+  <target name="compile.module.urent-server" depends="compile.module.urent-server.production,compile.module.urent-server.tests" description="Compile module urent-server"/>
+  
+  <target name="compile.module.urent-server.production" depends="register.custom.compilers" description="Compile module urent-server; production classes">
+    <mkdir dir="${urent-server.output.dir}"/>
+    <javac2 destdir="${urent-server.output.dir}" debug="${compiler.debug}" nowarn="${compiler.generate.no.warnings}" memorymaximumsize="${compiler.max.memory}" fork="true" executable="${module.jdk.bin.urent-server}/javac">
+      <compilerarg line="${compiler.args.urent-server}"/>
+      <bootclasspath refid="urent-server.module.bootclasspath"/>
+      <classpath refid="urent-server.module.production.classpath"/>
+      <src refid="urent-server.module.sourcepath"/>
+      <patternset refid="excluded.from.compilation.urent-server"/>
+    </javac2>
+    
+    <copy todir="${urent-server.output.dir}">
+      <fileset dir="${module.urent-server.basedir}/src/main/java">
+        <patternset refid="compiler.resources"/>
+        <type type="file"/>
+      </fileset>
+      <fileset dir="${module.urent-server.basedir}/src/main/resources">
+        <patternset refid="compiler.resources"/>
+        <type type="file"/>
+      </fileset>
+    </copy>
+  </target>
+  
+  <target name="compile.module.urent-server.tests" depends="register.custom.compilers,compile.module.urent-server.production" description="compile module urent-server; test classes" unless="skip.tests">
+    <mkdir dir="${urent-server.testoutput.dir}"/>
+    <javac2 destdir="${urent-server.testoutput.dir}" debug="${compiler.debug}" nowarn="${compiler.generate.no.warnings}" memorymaximumsize="${compiler.max.memory}" fork="true" executable="${module.jdk.bin.urent-server}/javac">
+      <compilerarg line="${compiler.args.urent-server}"/>
+      <bootclasspath refid="urent-server.module.bootclasspath"/>
+      <classpath refid="urent-server.module.classpath"/>
+      <src refid="urent-server.module.test.sourcepath"/>
+      <patternset refid="excluded.from.compilation.urent-server"/>
+    </javac2>
+    
+    <copy todir="${urent-server.testoutput.dir}">
+      <fileset dir="${module.urent-server.basedir}/src/test/java">
+        <patternset refid="compiler.resources"/>
+        <type type="file"/>
+      </fileset>
+      <fileset dir="${module.urent-server.basedir}/src/test/resources">
+        <patternset refid="compiler.resources"/>
+        <type type="file"/>
+      </fileset>
+    </copy>
+  </target>
+  
+  <target name="clean.module.urent-server" description="cleanup module">
+    <delete dir="${urent-server.output.dir}"/>
+    <delete dir="${urent-server.testoutput.dir}"/>
+  </target>
+</project>

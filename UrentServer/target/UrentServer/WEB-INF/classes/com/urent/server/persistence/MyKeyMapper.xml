@@ -1,0 +1,246 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+
+<mapper namespace="com.urent.server.persistence.MyKeyMapper">
+
+<resultMap id="MyKeyResultMap" type="com.urent.server.domain.Key">
+        <id property="id" column="id" />
+        <result property="maxTimes" column="key_maxtimes" />
+        <result property="usedTimes" column="key_usedtimes" />
+        <result property="expiredDate" column="key_expireddate" />
+        <result property="alias" column="key_name" />
+        <result property="type" column="key_type" />
+        <result property="status" column="key_status" />
+        <result property="updateDate" column="key_updateDate" />
+
+        <association property="lock" javaType="com.urent.server.domain.Lock" >
+                <id property="id" column="lock_id"/>
+                <result property="gapAddress" column="gapAddress" />
+                <result property="constantKeyWord" column="constantKeyWord" />
+                <result property="constantKeyWordExpiredDate" column="constantKeyWordExpiredDate" />
+                <result property="updateDate" column="lock_updateDate" />
+                <association property="type" javaType="com.urent.server.domain.LockType">
+                        <id property="id" column="lock_typeid" />
+                        <association property="newestFirmwareVersion" javaType="com.urent.server.domain.Version">
+                                <id property="id" column="newestversionid" />
+                                <result property="major" column="version_major" />
+                                <result property="minor" column="version_minor" />
+                        </association>
+                </association>
+                <association property="house" javaType="com.urent.server.domain.House" >
+                    <id property="id" column="house_id" />
+                    <association property="address" javaType="com.urent.server.domain.Address" >
+                        <id property="id" column="address_id" />
+                        <result property="subdistrict" column="subdistrict" />
+                        <association property="area" javaType="com.urent.server.domain.Area" >
+                            <id property="id" column="area_id" />
+                        </association>
+                    </association>
+                </association>
+        </association>
+
+       <association property="sharedFrom" javaType="com.urent.server.domain.Key" >
+           <id property="id" column="sharefrom_keyId" />
+           <result property="updateDate" column="sharefrom_updateDate" />
+           <association property="owner" javaType="com.urent.server.domain.User" >
+               <id property="id" column="sharefrom_userId" />
+               <result property="name" column="sharefrom_username"/>
+               <result property="nickname" column="sharefrom_nickname"/>
+               <result property="mobile" column="sharefrom_mobile" />
+               <result property="gender" column="sharefrom_gender" />
+               <result property="headerImageId" column="sharedfrom_headerImage"/>
+           </association>
+       </association>
+
+</resultMap>
+
+
+<select id="getMyKeys" parameterType="map" resultMap="MyKeyResultMap" >
+SELECT
+
+    k.id AS id,
+    k.usedTimes AS key_usedtimes,
+    k.maxTimes AS key_maxtimes,
+    k.expiredDate AS key_expireddate,
+    k.alias AS key_name,
+    k.type AS key_type,
+    k.status AS key_status,
+    k.updateDate AS key_updateDate,
+    lo.id AS lock_id,
+    lo.gapAddress AS gapAddress,
+    lo.constantKeyWord AS constantKeyWord,
+    lo.constantKeyWordExpiredDate AS constantKeyWordExpiredDate,
+    lo.typeId AS lock_typeid,
+    lo.updateDate AS lock_updateDate,
+    lotp.newestFirmwareVersionId AS newestversionid,
+    v.major AS version_major,
+    v.minor AS version_minor
+
+    FROM
+    `key` k
+    JOIN `lock` lo ON k.lockId=lo.id
+    JOIN locktype lotp ON lo.typeId=lotp.id
+    JOIN version v ON lotp.newestFirmwareVersionId=v.id
+
+
+    <where>
+        k.ownerId=#{userId} AND k.status>0
+    </where>
+    <if test="sort != null">
+        ORDER BY ${sort.property} ${sort.direction}
+    </if>
+    <if test="start != null">
+        LIMIT #{start}, #{limit}
+    </if>
+</select>
+
+
+    
+<select id="getMyKeyCount" parameterType="map"  resultType="long">
+    SELECT
+    count(1)
+    FROM
+    `key` k
+    JOIN `lock` lo ON k.lockid=lo.id
+    JOIN locktype lotp ON lo.typeId=lotp.id
+    JOIN version v ON lotp.newestFirmwareVersionId=v.id
+
+
+    <where>
+        k.ownerId=#{userId} AND k.status>0
+    </where>
+
+</select>
+    
+    
+<select id="getMyKeyById" parameterType="Long" resultMap="MyKeyResultMap" >
+    SELECT
+    ke.id AS id,
+    ke.maxTimes AS key_maxtimes,
+    ke.usedTimes AS key_usedtimes,
+    ke.expiredDate AS key_expireddate,
+    ke.alias AS key_name,
+    ke.type AS key_type,
+    ke.status AS key_status,
+    ke.updateDate AS key_updateDate,
+    ke2.id AS sharefrom_keyId,
+    ke2.updateDate AS sharefrom_updateDate,
+    u.id AS sharefrom_userId,
+    u.name AS sharefrom_username,
+    u.nickname AS sharefrom_nickname,
+    u.mobile AS sharefrom_mobile,
+    u.gender AS sharefrom_gender,
+    u.headerImageId AS sharedfrom_headerImage,
+    lo.id AS lock_id,
+    lo.gapAddress AS gapAddress,
+    lo.constantKeyWord AS constantKeyWord,
+    lo.constantKeyWordExpiredDate AS constantKeyWordExpiredDate,
+    lo.typeId AS lock_typeid,
+    lo.updateDate AS lock_updateDate,
+    lotp.newestFirmwareVersionId AS newestversionid,
+    v.major AS version_major,
+    v.minor AS version_minor,
+    h.id AS house_id,
+    a.id AS address_id,
+    a.subdistrict AS subdistrict,
+    a.areaId AS area_id
+    FROM
+    `key` ke JOIN  `lock` lo ON ke.lockId=lo.id
+    LEFT JOIN locktype lotp ON lo.typeId=lotp.id
+    LEFT JOIN house h ON lo.houseId=h.id
+    LEFT JOIN version v ON lotp.newestFirmwareVersionId=v.id
+    LEFT JOIN `key` ke2 ON ke.sharedFromId=ke2.id
+    LEFT JOIN `user` u ON ke2.ownerId=u.id
+    LEFT JOIN address a ON h.addressId=a.id
+
+<where>
+       ke.id=#{id} AND ke.status>0
+</where>
+
+</select>
+
+<select id="getPrimaryAndSlaveKeysOfOneUser" parameterType="Long" resultMap="MyKeyResultMap">
+   SELECT
+    id AS id,
+    `type` AS key_type,
+    lockId AS lock_id
+  FROM
+  `key`
+
+  <where>
+      ownerId=#{id}
+      AND ( type='primary' OR type='slave')
+      AND `status`>0
+  </where>
+
+</select>
+
+<resultMap id="LockAndOwnerInfoMap" type="com.urent.server.domain.Key" >
+    <id property="id" column="id" />
+    <result property="type" column="type" />
+    <result property="status" column="status" />
+    <result property="expiredDate" column="expiredDate"/>
+    <result property="maxSharedCount" column="key_maxSharedCount" />
+    <association property="lock" javaType="com.urent.server.domain.Lock" >
+        <id property="id" column="lockId" />
+        <result property="disposableEncryptWord" column="disposableEncryptWord" />
+        <result property="constantEncryptWord" column="constantEncryptWord" />
+        <result property="gapAddress" column="gapAddress" />
+        <result property="powerDensity" column="powerDensity" />
+        <association property="house" javaType="com.urent.server.domain.House">
+            <id property="id" column="houseId" />
+        </association>
+        <association property="currentFirmwareVersion" javaType="com.urent.server.domain.Version" >
+            <id property="id" column="currentFirmwareVersionId"/>
+        </association>
+    </association>
+    <association property="owner" javaType="com.urent.server.domain.User" >
+        <id property="id" column="ownerId" />
+        <result property="mobile" column="mobile"/>
+    </association>
+    <association property="sharedFrom" javaType="com.urent.server.domain.Key" >
+        <id property="id" column="sharefrom_keyId" />
+        <association property="owner" javaType="com.urent.server.domain.User" >
+            <id property="id" column="sharefrom_userId" />
+        </association>
+    </association>
+</resultMap>
+
+
+
+<select id="getKeyInfoById" parameterType="Long" resultMap="LockAndOwnerInfoMap"   >
+    SELECT
+    k.id AS  id,
+    k.ownerId AS  ownerId,
+    k.lockId AS  lockId,
+    k.type AS type,
+    k.sharedFromId AS sharefrom_keyId,
+    k.status AS status,
+    k.expiredDate AS expiredDate,
+    k.maxSharedCount AS key_maxSharedCount,
+    l.disposableEncryptWord AS  disposableEncryptWord,
+    l.constantEncryptWord AS constantEncryptWord,
+    l.powerDensity AS powerDensity,
+    l.currentFirmwareVersionId AS currentFirmwareVersionId,
+    l.gapAddress AS gapAddress,
+    l.houseId AS  houseId,
+
+    ke2.ownerId AS sharefrom_userId
+    FROM
+    `key` k
+    JOIN `lock` l ON  k.lockId=l.id
+    LEFT JOIN `key` ke2 ON k.sharedFromId=ke2.id
+    LEFT JOIN `user` u ON ke2.ownerId=u.id
+
+    <where>
+        k.id=#{id} AND k.status>0
+    </where>
+</select>
+
+
+
+
+
+</mapper>

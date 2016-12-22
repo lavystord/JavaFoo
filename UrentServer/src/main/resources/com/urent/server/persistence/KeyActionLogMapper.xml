@@ -1,0 +1,212 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<!--
+  Created by Administrator on 2015/8/25
+  Using template "SpringMvcMapperXml" created by Xc
+  For project UrentServer
+ 
+                                          Langya Technology
+ -->
+
+
+<mapper namespace="com.urent.server.persistence.KeyActionLogMapper">
+
+    <resultMap id="kalResult" type="com.urent.server.domain.KeyActionLog">
+        <id column="id" property="id"/>
+        <result property="lockGapAddress" column="lockGapAddress"/>
+        <result property="action" column="action"/>
+        <result property="time" column="time"/>
+        <result property="data" column="data"/>
+        <result property="createDate" column="createDate"/>
+        <association property="manager" column="managerId" javaType="com.urent.server.domain.User">
+            <id column="managerId" property="id"/>
+            <result column="managerName" property="name"/>
+            <result column="managerNickname" property="nickname"/>
+            <result column="managerMobile" property="mobile"/>
+        </association>
+        <association property="key" column="keyId" javaType="com.urent.server.domain.Key">
+            <id column="keyId" property="id"/>
+            <association property="owner" column="ownerId" javaType="com.urent.server.domain.User">
+                <id column="ownerId" property="id"/>
+                <result column="ownerName" property="name"/>
+                <result column="ownerNickname" property="nickname"/>
+                <result column="ownerMobile" property="mobile"/>
+                <result column="headerImageId" property="headerImageId"/>
+            </association>
+        </association>
+        <association property="lock" column="lockId" javaType="com.urent.server.domain.Lock">
+            <id column="lockId" property="id"/>
+        </association>
+        <association property="house" column="houseId" javaType="com.urent.server.domain.House">
+            <id column="houseId" property="id"/>
+            <result column="building" property="building"/>
+            <result column="unit" property="unit"/>
+            <result column="floor" property="floor"/>
+            <result column="number" property="number"/>
+            <association property="address" column="addressId" javaType="com.urent.server.domain.Address">
+                <id column="addressId" property="id"/>
+                <result column="subdistrict" property="subdistrict"/>
+                <association property="area" column="areaId" javaType="com.urent.server.domain.Area">
+                    <id column="areaId" property="id"/>
+                    <result column="areaName" property="areaName"/>
+                </association>
+            </association>
+        </association>
+    </resultMap>
+
+    <select id="getKeyActionLogs" parameterType="map" resultMap="kalResult">
+        SELECT
+        kal.*,
+        k.ownerId,
+        o.mobile as ownerMobile,
+        o.name as ownerName,
+        o.nickname as ownerNickname,
+        h.building,
+        h.unit,
+        h.floor,
+        h.number,
+        h.addressId,
+        ad.subdistrict,
+        ad.areaId,
+        ar.areaName,
+        m.mobile as managerMobile,
+        m.name as managerName,
+        m.nickname as managerNickname
+        FROM `keyActionLog` kal
+        JOIN `key` k on kal.keyId = k.id
+        JOIN `user` o on k.ownerId = o.id
+        JOIN `lock` l on kal.lockId = l.id
+        JOIN `house` h on kal.houseId = h.id
+        JOIN `address` ad on h.addressId = ad.id
+        JOIN `area` ar on ad.areaId = ar.id
+        JOIN `user` m on kal.managerId = m.id
+        <where>
+            <!--填写你的查询filters-->
+            <if test="ownerName != null">o.name like #{ownerName}"%"</if>
+            <if test="ownerNickname != null">AND o.nickname like #{ownerNickname}"%"</if>
+            <if test="ownerMobile != null">AND o.mobile like #{ownerMobile}"%"</if>
+            <if test="subdistrict != null">AND subdistrict like #{subdistrict}"%"</if>
+            <if test="keyId != null">AND k.id = #{keyId}</if>
+            <if test="lockId != null">AND l.id = #{lockId}</if>
+            <if test="houseId != null">AND h.id = #{houseId}</if>
+        </where>
+        <if test="sort != null">
+            ORDER BY ${sort.property} ${sort.direction}
+        </if>
+        <if test="start != null">
+            LIMIT #{start}, #{limit}
+        </if>
+    </select>
+
+    <select id="getKeyActionLogById" parameterType="long" resultMap="kalResult">
+        SELECT
+        kal.*,
+        k.ownerId,
+        o.mobile as ownerMobile,
+        o.name as ownerName,
+        o.nickname as ownerNickname,
+        h.building,
+        h.unit,
+        h.floor,
+        h.number,
+        h.addressId,
+        ad.subdistrict,
+        ad.areaId,
+        ar.areaName,
+        m.mobile as managerMobile,
+        m.name as managerName,
+        m.nickname as managerNickname
+        FROM `keyActionLog` kal
+        JOIN `key` k on kal.keyId = k.id
+        JOIN `user` o on k.ownerId = o.id
+        JOIN `lock` l on kal.lockId = l.id
+        JOIN `house` h on kal.houseId = h.id
+        JOIN `address` ad on h.addressId = ad.id
+        JOIN `area` ar on ad.areaId = ar.id
+        JOIN `user` m on kal.managerId = m.id
+        where kal.id = #{id}
+    </select>
+
+
+    <select id="getKeyActionLogCount" parameterType="map" resultType="long">
+        SELECT
+       count(1)
+        FROM `keyActionLog` kal
+        JOIN `key` k on kal.keyId = k.id
+        JOIN `user` o on k.ownerId = o.id
+        JOIN `lock` l on kal.lockId = l.id
+        JOIN `house` h on kal.houseId = h.id
+        JOIN `address` ad on h.addressId = ad.id
+        JOIN `area` ar on ad.areaId = ar.id
+        JOIN `user` m on kal.managerId = m.id
+        <where>
+            <!--填写你的查询filters-->
+            <if test="ownerName != null">o.name like #{ownerName}"%"</if>
+            <if test="ownerNickname != null">AND o.nickname like #{ownerNickname}"%"</if>
+            <if test="ownerMobile != null">AND o.mobile like #{ownerMobile}"%"</if>
+            <if test="subdistrict != null">AND subdistrict like #{subdistrict}"%"</if>
+            <if test="keyId != null">AND k.id = #{keyId}</if>
+            <if test="lockId != null">AND l.id = #{lockId}</if>
+            <if test="houseId != null">AND h.id = #{houseId}</if>
+        </where>
+    </select>
+
+    <insert id="addKeyActionLog" parameterType="com.urent.server.domain.KeyActionLog" useGeneratedKeys="true"
+            keyProperty="id">
+        insert INTO
+        `keyActionLog`
+        <!--填写你的表列名-->
+        (keyId, lockId, lockGapAddress, houseId, managerId, action, data, time,createDate)
+        VALUES
+        <!--填写你的属性名-->
+        (#{key.id}, #{lock.id}, #{lockGapAddress}, #{house.id}, #{manager.id}, #{action}, #{data}, #{time},#{createDate})
+    </insert>
+
+
+    <select id="getKeyUsedLogs" parameterType="map" resultMap="kalResult">
+        SELECT
+        kal.*,
+        k.ownerId,
+        o.mobile as ownerMobile,
+        o.name as ownerName,
+        o.nickname as ownerNickname,
+        o.headerImageId as headerImageId
+        FROM `keyActionLog` kal
+        JOIN `key` k on kal.keyId = k.id
+        JOIN `user` o on k.ownerId = o.id
+        <where>
+            <!--填写你的查询filters-->
+            k.createDate >= #{createDate}
+            AND (k.id = #{keyId} OR k.sharedFromId = #{keyId} OR k.type = 'temp')
+            AND kal.lockId = #{lockId}
+            AND kal.action = #{action}
+        </where>
+        <if test="sort != null">
+            ORDER BY ${sort.property} ${sort.direction}
+        </if>
+        <if test="start != null">
+            LIMIT #{start}, #{limit}
+        </if>
+    </select>
+
+    <!--
+    <update id="updateKeyActionLog" parameterType="com.urent.server.domain.KeyActionLog">
+        update `keyActionLog`
+        <set>
+            <if test="column1!=null">column1 = #{column1},</if>
+        </set>
+        WHERE
+        id = #{id}
+    </update>
+
+    <delete id="deleteKeyActionLog" parameterType="com.urent.server.domain.KeyActionLog">
+        delete from
+        `keyActionLog`
+        where
+        id = #{id}
+    </delete>-->
+
+
+</mapper>

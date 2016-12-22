@@ -1,0 +1,89 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<!--
+  Created by Administrator on 2015/8/22
+  Using template "SpringMvcMapperXml" created by Xc
+  For project UrentServer
+ 
+                                          Langya Technology
+ -->
+
+
+<mapper namespace="com.urent.server.persistence.DataModificationLogMapper">
+
+    <resultMap id="dmlResult" type="com.urent.server.domain.DataModificationLog">
+        <id property="id" column="id" />
+        <result property="calledClassName" column="calledClassName"/>
+        <result property="calledMethodName" column="calledMethodName"/>
+        <result property="method" column="method"/>
+        <result property="remoteAddress" column="remoteAddress"/>
+        <result property="userAgent" column="userAgent"/>
+        <result property="bodyData" column="bodyData"/>
+        <result property="createDate" column="createDate"/>
+        <association property="user" column="userId" javaType="com.urent.server.domain.User">
+            <id property="id" column="userId"/>
+            <result property="name" column="name"/>
+            <result property="mobile" column="mobile"/>
+        </association>
+    </resultMap>
+
+    <select id="getDataModificationLogs" parameterType="map" resultMap="dmlResult">
+        SELECT
+        dml.*,
+        u.name,
+        u.mobile
+        FROM `dataModificationLog` dml
+        LEFT JOIN `user` u on dml.userId = u.id
+        <where>
+            <if test="createDateBegin != null">dml.createDate > #{createDateBegin}</if>
+            <if test="createDateEnd != null">AND #{createDateEnd} > dml.createDate </if>
+            <if test="userName!=null">AND u.name = #{userName}</if>
+            <if test="userMobile!=null">AND u.mobile = #{userMobile}</if>
+        </where>
+        <if test="sort != null">
+            ORDER BY ${sort.property} ${sort.direction}
+        </if>
+        <if test="start != null">
+            LIMIT #{start}, #{limit}
+        </if>
+    </select>
+
+    <select id="getDataModificationLogById" parameterType="long" resultMap="dmlResult">
+        SELECT
+        dml.*,
+        u.name,
+        u.mobile
+        FROM `dataModificationLog` dml
+        LEFT JOIN `user` u on dml.userId = u.id
+        where dml.id = #{id}
+    </select>
+
+
+    <select id="getDataModificationLogCount" parameterType="map" resultType="long">
+        SELECT
+        count(1)
+        FROM `dataModificationLog` dml
+        LEFT JOIN `user` u on dml.userId = u.id
+        <where>
+            <!--填写你的查询filters-->
+            <if test="createDateBegin != null">dml.createDate > #{createDateBegin}</if>
+            <if test="createDateEnd != null">AND #{createDateEnd} > dml.createDate </if>
+            <if test="userName!=null">AND u.name = #{userName}</if>
+            <if test="userMobile!=null">AND u.mobile = #{userMobile}</if>
+        </where>
+    </select>
+
+    <insert id="addDataModificationLog" parameterType="com.urent.server.domain.DataModificationLog"
+            useGeneratedKeys="true" keyProperty="id">
+        insert INTO
+        `dataModificationLog`
+        <!--填写你的表列名-->
+        (userId, calledClassName, calledMethodName, method, bodyData, userAgent, remoteAddress, createDate)
+        VALUES
+        <!--填写你的属性名-->
+        (#{user.id}, #{calledClassName}, #{calledMethodName}, #{method}, #{bodyData}, #{userAgent}, #{remoteAddress}, #{createDate})
+    </insert>
+
+</mapper>

@@ -1,0 +1,132 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<!--
+  Created by Administrator on 2015/8/15
+  Using template "SpringMvcMapperXml" created by Xc
+  For project UrentServer
+ 
+                                          Langya Technology
+ -->
+
+<mapper namespace="com.urent.server.persistence.LockTypeMapper">
+
+    <resultMap id="lockTypeResult" type="com.urent.server.domain.LockType">
+        <id property="id" column="id"/>
+        <result property="name" column="name"/>
+        <result property="description" column="description"/>
+        <result property="imageIds" column="imageIds"/>
+        <association property="hardwareVersion" column="hardwareVersionId" javaType="com.urent.server.domain.Version">
+            <id property="id" column="hardwareVersionId"/>
+            <result property="major" column="v1_major"/>
+            <result property="minor" column="v1_minor"/>
+        </association>
+        <association property="newestFirmwareVersion" column="newestFirmwareVersionId" javaType="com.urent.server.domain.Version">
+            <id property="id" column="newestFirmwareVersionId"/>
+            <result property="major" column="v2_major"/>
+            <result property="minor" column="v2_minor"/>
+            <result property="firmwareFileId" column="v2_firmwareFileId"/>
+        </association>
+    </resultMap>
+
+    <select id="getLockTypes" parameterType="map" resultMap="lockTypeResult">
+        SELECT
+        lt.id as id,
+        lt.description as description,
+        lt.name as name,
+        lt.imageIds as imageIds,
+        lt.newestFirmwareVersionId as newestFirmwareVersionId,
+        lt.hardwareVersionId as hardwareVersionId,
+        v1.major as v1_major,
+        v1.minor as v1_minor,
+        v2.major as v2_major,
+        v2.minor as v2_minor,
+        v2.firmwareFileId as v2_firmwareFileId
+        FROM `lockType` lt, `version` v1, `version` v2
+        <where>
+            lt.hardwareVersionId = v1.id
+            AND lt.newestFirmwareVersionId = v2.id
+            <if test="major != null">AND v1.major = #{major}</if>
+            <if test="minor != null">AND v1.minor = #{minor}</if>
+            <if test="name != null">AND lt.name like #{name}"%"</if>
+        </where>
+        <if test="sort != null">
+            ORDER BY ${sort.property} ${sort.direction}
+        </if>
+        <if test="start != null">
+            LIMIT #{start}, #{limit}
+        </if>
+    </select>
+
+    <select id="getLockTypeById" parameterType="long" resultMap="lockTypeResult">
+        SELECT
+        lt.id as id,
+        lt.name as name,
+        lt.description as description,
+        lt.imageIds as imageIds,
+        lt.newestFirmwareVersionId as newestFirmwareVersionId,
+        lt.hardwareVersionId as hardwareVersionId,
+        v1.major as v1_major,
+        v1.minor as v1_minor,
+        v2.major as v2_major,
+        v2.minor as v2_minor,
+        v2.firmwareFileId as v2_firmwareFileId
+        FROM `lockType` lt, `version` v1, `version` v2
+        where lt.id = #{id}
+        AND  lt.hardwareVersionId = v1.id
+        AND lt.newestFirmwareVersionId = v2.id
+    </select>
+
+
+    <select id="getLockTypeCount" parameterType="map" resultType="long">
+        SELECT
+        count(1)
+        FROM `lockType` lt, `version` v1, `version` v2
+        <where>
+            lt.hardwareVersionId = v1.id
+            AND lt.newestFirmwareVersionId = v2.id
+            <if test="major != null">AND v1.major = #{major}</if>
+            <if test="minor != null">AND v1.minor = #{minor}</if>
+            <if test="name != null">AND lt.name like #{name}"%"</if>
+        </where>
+    </select>
+
+    <insert id="addLockType" parameterType="com.urent.server.domain.LockType" useGeneratedKeys="true" keyProperty="id">
+        insert INTO
+        `lockType`
+        (hardwareVersionId, newestFirmwareVersionId, description, name, imageIds)
+        VALUES
+        (#{hardwareVersion.id}, #{newestFirmwareVersion.id}, #{description}, #{name}, #{imageIds})
+    </insert>
+
+    <update id="updateLockType" parameterType="com.urent.server.domain.LockType">
+        update `lockType`
+        <set>
+            <if test="description!=null">description = #{description},</if>
+            <if test="imageIds!=null">imageIds = #{imageIds},</if>
+            <if test="name != null">name = #{name},</if>
+            <if test="newestFirmwareVersion != null">newestFirmwareVersionId = #{newestFirmwareVersion.id}</if>
+        </set>
+        WHERE
+        id = #{id}
+    </update>
+
+    <delete id="deleteLockType" parameterType="com.urent.server.domain.LockType">
+        delete from
+        `lockType`
+        where
+        id = #{id}
+    </delete>
+
+    <select id="getLockTypeReferenceCount" parameterType="com.urent.server.domain.LockType" resultType="long">
+        select
+         count(1)
+        from
+        `lock`
+        WHERE
+        typeId = #{id}
+    </select>
+
+
+</mapper>

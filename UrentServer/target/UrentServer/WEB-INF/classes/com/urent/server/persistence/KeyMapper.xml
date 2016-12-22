@@ -1,0 +1,322 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<!--
+  Created by Administrator on 2015/8/16
+  Using template "SpringMvcMapperXml" created by Xc
+  For project UrentServer
+ 
+                                          Langya Technology
+ -->
+
+
+<mapper namespace="com.urent.server.persistence.KeyMapper">
+
+    <resultMap id="keyResult" type="com.urent.server.domain.Key">
+        <id property="id" column="id"/>
+        <result property="expiredDate" column="expiredDate"/>
+        <result property="maxTimes" column="maxTimes"/>
+        <result property="usedTimes" column="usedTimes"/>
+        <result property="alias" column="alias"/>
+        <result property="status" column="status"/>
+        <result property="maxSharedCount" column="maxSharedCount"/>
+        <result property="type" column="type"/>
+        <result property="createDate" column="createDate"/>
+        <result property="updateDate" column="updateDate"/>
+        <association property="owner" column="ownerId" javaType="com.urent.server.domain.User">
+            <id property="id" column="ownerId"/>
+            <result property="mobile" column="mobile"/>
+            <result property="name" column="name"/>
+            <result property="nickname" column="nickname"/>
+        </association>
+        <association property="sharedFrom" column="sharedFromId" javaType="com.urent.server.domain.Key">
+            <id property="id" column="sharedFromId"/>
+            <association property="owner" column="sharedFromOwnerId" javaType="com.urent.server.domain.User">
+                <id property="id" column="sharedFromOwnerId"/>
+                <result property="mobile" column="sharedFromOwnerMobile"/>
+                <result property="name" column="sharedFromOwnerName"/>
+                <result property="nickname" column="sharedFromNickname"/>
+            </association>
+        </association>
+        <association property="lock" column="lockId" javaType="com.urent.server.domain.Lock">
+            <id property="id" column="lockId"/>
+            <result property="gapAddress" column="gapAddress"/>
+            <association property="house" column="lockHouseId" javaType="com.urent.server.domain.House">
+                <id property="id" column="lockHouseId"/>
+                <result property="building" column="building"/>
+                <result property="unit" column="unit"/>
+                <result property="number" column="number"/>
+                <association property="address" column="lockHouseAddressId" javaType="com.urent.server.domain.Address">
+                    <id property="id" column="lockHouseAddressId"/>
+                    <result property="subdistrict" column="subdistrict"/>
+                    <association property="area" column="lockHouseAddressAreaId" javaType="com.urent.server.domain.Area">
+                        <id property="id" column="lockHouseAddressAreaId"/>
+                        <result property="areaName" column="areaName"/>
+                    </association>
+                </association>
+            </association>
+        </association>
+    </resultMap>
+
+    <select id="getKeys" parameterType="map" resultMap="keyResult">
+        SELECT
+        k.*,
+        l.gapAddress,
+        l.houseId as lockHouseId,
+        h.building,
+        h.unit,
+        h.number,
+        h.addressId as lockHouseAddressId,
+        ad.subdistrict,
+        ad.areaId as lockHouseAddressAreaId,
+        ar.areaName,
+        u.mobile,
+        u.name,
+        u.nickname,
+        k2.ownerId as sharedFromOwnerId,
+        u2.mobile as sharedFromOwnerMobile,
+        u2.name as sharedFromOwnerName,
+        u2.nickname AS sharedFromNickname
+        FROM `key` k
+        JOIN `lock` l ON k.lockId = l.id
+        JOIN `house` h ON l.houseId = h.id
+        JOIN `address` ad ON h.addressId = ad.id
+        JOIN `area` ar ON ad.areaId = ar.id
+        JOIN `user` u ON k.ownerId = u.id
+        LEFT JOIN `key` k2 ON k.sharedFromId = k2.id
+        LEFT JOIN `user` u2 ON k2.ownerId = u2.id
+        <where>
+            <if test="id != null">k.id = #{id}</if>
+            <if test="sharedFromId != null">AND k.sharedFromId = #{sharedFromId}</if>
+            <if test="ownerName != null">AND u.name like #{ownerName}"%"</if>
+            <if test="ownerMobile != null">AND u.mobile like #{ownerMobile}"%"</if>
+            <if test="sharedFromUserName != null">AND u2.name like #{sharedFromUserName}"%"</if>
+            <if test="lockId != null">AND k.lockId = #{lockId}</if>
+            <if test="ownerId != null">AND k.ownerId = #{ownerId}</if>
+            <if test="status != null">AND k.status = #{status}</if>
+            <if test="type != null">AND k.type = #{type}</if>
+        </where>
+        <if test="sort != null">
+            ORDER BY ${sort.property} ${sort.direction}
+        </if>
+        <if test="start != null">
+            LIMIT #{start}, #{limit}
+        </if>
+    </select>
+
+    <select id="getKeyById" parameterType="long" resultMap="keyResult">
+        SELECT
+        k.*,
+        l.gapAddress,
+        l.houseId as lockHouseId,
+        h.building,
+        h.unit,
+        h.number,
+        h.addressId as lockHouseAddressId,
+        ad.subdistrict,
+        ad.areaId as lockHouseAddressAreaId,
+        ar.areaName,
+        u.mobile,
+        u.name,
+        u.nickname,
+        k2.ownerId as sharedFromOwnerId,
+        u2.mobile as sharedFromOwnerMobile,
+        u2.name as sharedFromOwnerName,
+        u2.nickname AS  sharedFromNickname
+        FROM `key` k
+        JOIN `lock` l ON k.lockId = l.id
+        JOIN `house` h ON l.houseId = h.id
+        JOIN `address` ad ON h.addressId = ad.id
+        JOIN `area` ar ON ad.areaId = ar.id
+        JOIN `user` u ON k.ownerId = u.id
+        LEFT JOIN `key` k2 ON k.sharedFromId = k2.id
+        LEFT JOIN `user` u2 ON k2.ownerId = u2.id
+        where k.id = #{id}
+    </select>
+
+
+    <select id="getKeyCount" parameterType="map" resultType="long">
+        SELECT
+        count(1)
+        FROM `key` k
+        JOIN `lock` l ON k.lockId = l.id
+        JOIN `house` h ON l.houseId = h.id
+        JOIN `address` ad ON h.addressId = ad.id
+        JOIN `area` ar ON ad.areaId = ar.id
+        JOIN `user` u ON k.ownerId = u.id
+        LEFT JOIN `key` k2 ON k.sharedFromId = k2.id
+        LEFT JOIN `user` u2 ON k2.ownerId = u2.id
+        <where>
+            <if test="id != null">k.id = #{id}</if>
+            <if test="sharedFromId != null">AND k.sharedFromId = #{sharedFromId}</if>
+            <if test="ownerName != null">AND u.name like #{ownerName}"%"</if>
+            <if test="ownerMobile != null">AND u.mobile like #{ownerMobile}"%"</if>
+            <if test="sharedFromUserName != null">AND u2.name like #{sharedFromUserName}"%"</if>
+            <if test="lockId != null">AND k.lockId = #{lockId}</if>
+            <if test="ownerId != null">AND k.ownerId = #{ownerId}</if>
+            <if test="status != null">AND k.status = #{status}</if>
+            <if test="type != null">AND k.type = #{type}</if>
+        </where>
+    </select>
+
+    <!--<select id="getKeyCountOfOneLockAndUser" parameterType="map" resultType="long">-->
+        <!--SELECT-->
+        <!--COUNT(1)-->
+        <!--FROM `key`-->
+        <!--WHERE-->
+        <!--lockId=#{lockId} AND ownerId=#{ownerId} AND status=#{status}-->
+    <!--</select>-->
+
+    <insert id="addKey" parameterType="com.urent.server.domain.Key" useGeneratedKeys="true" keyProperty="id">
+        insert INTO
+        `key`(lockId, ownerId, sharedFromId, expiredDate, maxTimes, usedTimes, alias, type, status, maxSharedCount, createDate, updateDate)
+        VALUES
+        (#{lock.id}, #{owner.id}, #{sharedFrom.id}, #{expiredDate}, #{maxTimes}, #{usedTimes}, #{alias}, #{type}, #{status}, #{maxSharedCount},
+        #{createDate}, #{updateDate})
+    </insert>
+
+    <update id="updateKey" parameterType="com.urent.server.domain.Key">
+        update `key`
+        <set>
+            <!--填写你的表列名-->
+            <if test="status!=null">status = #{status},</if>
+            <if test="alias!=null">alias = #{alias},</if>
+            <if test="expiredDate!=null">expiredDate = #{expiredDate},</if>
+            <if test="maxTimes!=maxTimes">maxTimes = #{maxTimes},</if>
+            <if test="usedTimes!=null">usedTimes = #{usedTimes},</if>
+            <if test="maxSharedCount!=null">maxSharedCount = #{maxSharedCount},</if>
+            <if test="updateDate!=null">updateDate = #{updateDate}</if>
+        </set>
+        WHERE
+        id = #{id}
+    </update>
+
+    <delete id="deleteKey" parameterType="com.urent.server.domain.Key">
+        delete from
+        `key`
+        where
+        id = #{id}
+    </delete>
+
+    <!--<select id="getPrimaryKeyOfHouse" parameterType="com.urent.server.domain.House"  resultMap="keyResult">
+        SELECT
+        k.*,
+        l.gapAddress,
+        l.houseId as lockHouseId,
+        h.building,
+        h.unit,
+        h.number,
+        h.addressId as lockHouseAddressId,
+        ad.subdistrict,
+        ad.areaId as lockHouseAddressAreaId,
+        ar.areaName,
+        u.mobile,
+        u.name,
+        k2.ownerId as sharedFromOwnerId,
+        u2.mobile as sharedFromOwnerMobile,
+        u2.name as sharedFromOwnerName
+        FROM `key` k
+        JOIN `lock` l ON k.lockId = l.id
+        JOIN `house` h ON l.houseId = h.id
+        JOIN `address` ad ON h.addressId = ad.id
+        JOIN `area` ar ON ad.areaId = ar.id
+        JOIN `user` u ON k.ownerId = u.id
+        LEFT JOIN `key` k2 ON k.sharedFromId = k2.id
+        LEFT JOIN `user` u2 ON k2.ownerId = u2.id
+        where k.type = 'primary' and h.id = #{id} and k.status > 0
+    </select>-->
+
+    <select id="getAvailableKeys" parameterType="com.urent.server.domain.House"  resultMap="keyResult">
+        SELECT
+        k.*,
+        l.gapAddress,
+        l.houseId as lockHouseId,
+        h.building,
+        h.unit,
+        h.number,
+        h.addressId as lockHouseAddressId,
+        ad.subdistrict,
+        ad.areaId as lockHouseAddressAreaId,
+        ar.areaName,
+        u.mobile,
+        u.name,
+        k2.ownerId as sharedFromOwnerId,
+        u2.mobile as sharedFromOwnerMobile,
+        u2.name as sharedFromOwnerName
+        FROM `key` k
+        JOIN `lock` l ON k.lockId = l.id
+        JOIN `house` h ON l.houseId = h.id
+        JOIN `address` ad ON h.addressId = ad.id
+        JOIN `area` ar ON ad.areaId = ar.id
+        JOIN `user` u ON k.ownerId = u.id
+        LEFT JOIN `key` k2 ON k.sharedFromId = k2.id
+        LEFT JOIN `user` u2 ON k2.ownerId = u2.id
+        where
+        k.status > 0
+        <if test="houseId != null">and l.houseId = #{houseId}</if>
+        <if test="lockId != null">and k.lockId = #{lockId}</if>
+        <if test="ownerId != null">and k.ownerId = #{ownerId}</if>
+        <if test="type != null">and k.type = #{type}</if>
+        <if test="sharedFromId != null">and k.sharedFromId = #{sharedFromId}</if>
+    </select>
+
+
+   <!-- <update id="deactivateKey" parameterType="com.urent.server.domain.Key">
+        UPDATE
+        `key`
+        <set>
+            status = #{status},
+            <if test="updateDate!=null">updateDate=#{updateDate}</if>
+        </set>
+
+        WHERE
+        id = #{id}
+    </update>-->
+
+
+    <update id="activateKey" parameterType="com.urent.server.domain.Key">
+        UPDATE
+        `key`
+        <set>
+            status = 1,
+            <if test="updateDate!=null">updateDate=#{updateDate}</if>
+        </set>
+        WHERE
+        id = #{id}
+    </update>
+
+    <update id="tempKeyExpired" parameterType="com.urent.server.domain.Key">
+    UPDATE
+    `key`
+    <set>
+        status = 3,
+        <if test="updateDate!=null">updateDate=#{updateDate}</if>
+    </set>
+    WHERE
+    id = #{id}
+</update>
+
+    <update id="tempKeyUsed" parameterType="com.urent.server.domain.Key">
+        UPDATE
+        `key`
+        <set>
+            status = 2,
+            <if test="updateDate!=null">updateDate=#{updateDate}</if>
+        </set>
+        WHERE
+        id = #{id}
+    </update>
+
+    <update id="updateKeyStatus" parameterType="com.urent.server.domain.Key">
+        UPDATE
+        `key`
+        <set>
+            status = #{status},
+            <if test="updateDate!=null">updateDate=#{updateDate}</if>
+        </set>
+        WHERE
+        id = #{id}
+    </update>
+
+</mapper>

@@ -1,0 +1,2 @@
+DELETE FROM `user` WHERE id=6;
+DELETE FROM userrole WHERE id=3;

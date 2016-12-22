@@ -1,0 +1,166 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<!--
+  Created by Administrator on 2015/8/15
+  Using template "SpringMvcMapperXml" created by Xc
+  For project UrentServer
+ 
+                                          Langya Technology
+ -->
+
+
+<mapper namespace="com.urent.server.persistence.HouseMapper">
+
+    <resultMap id="houseResult" type="com.urent.server.domain.House">
+        <id property="id" column="id"/>
+        <result property="building" column="building"/>
+        <result property="unit" column="unit"/>
+        <result property="floor" column="floor"/>
+        <result property="number" column="number"/>
+        <association property="address" column="addressId" javaType="com.urent.server.domain.Address">
+            <id property="id" column="addressId"/>
+            <result property="subdistrict" column="subdistrict"/>
+            <result property="longitude" column="longitude"/>
+            <result property="latitude" column="latitude"/>
+            <association property="area" column="areaId" javaType="com.urent.server.domain.Area">
+                <id property="id" column="areaId"/>
+                <result property="areaName" column="areaName"/>
+                <result property="shortName" column="shortName"/>
+            </association>
+        </association>
+        <association property="owner" column="ownerId" javaType="com.urent.server.domain.User">
+            <id property="id" column="ownerId"/>
+            <result property="mobile" column="mobile"/>
+            <result property="name" column="name"/>
+            <result property="nickname" column="nickname"/>
+            <result property="gender" column="gender"/>
+            <result property="headerImageId" column="headerImageId"/>
+            <result property="active" column="active"/>
+        </association>
+    </resultMap>
+
+    <select id="getHouses" parameterType="map" resultMap="houseResult">
+        SELECT
+        h.*,
+        u.gender,
+        u.mobile,
+        u.name,
+        u.nickname,
+        u.headerImageId,
+        u.active,
+        ad.subdistrict,
+        ad.longitude,
+        ad.latitude,
+        ad.areaId,
+        ar.areaName,
+        ar.shortName
+        FROM
+        `house` h
+        JOIN `address` ad on h.addressId = ad.id
+        JOIN `area` ar on ad.areaId = ar.id
+        LEFT JOIN `user` u on h.ownerId = u.id
+        <where>
+            <if test="subdistrict != null">ad.subdistrict like #{subdistrict}"%"</if>
+            <if test="addressId != null">AND ad.id = #{addressId}</if>
+            <if test="building != null">AND h.building like #{building}"%"</if>
+            <if test="unit != null">AND h.unit like #{unit}"%"</if>
+            <if test="number != null">AND h.number like #{number}"%"</if>
+            <if test="areaName != null">AND ar.areaName like #{areaName}"%"</if>
+            <if test="ownerName != null">AND u.name like #{ownerName}"%"</if>
+            <if test="ownerMobile != null">AND u.mobile like #{ownerMobile}"%"</if>
+        </where>
+        <if test="sort != null">
+            ORDER BY ${sort.property} ${sort.direction}
+        </if>
+        <if test="start != null">
+            LIMIT #{start}, #{limit}
+        </if>
+    </select>
+
+    <select id="getHouseById" parameterType="long" resultMap="houseResult">
+        SELECT
+        h.*,
+        u.name,
+        u.mobile,
+        u.gender,
+        u.headerImageId,
+        u.active,
+        u.nickname,
+        ad.subdistrict,
+        ad.longitude,
+        ad.latitude,
+        ad.areaId,
+        ar.areaName,
+        ar.shortName
+        FROM
+        `house` h
+        JOIN `address` ad on h.addressId = ad.id
+        JOIN `area` ar on ad.areaId = ar.id
+        LEFT JOIN `user` u on h.ownerId = u.id
+        <where>
+            h.id = #{id}
+        </where>
+    </select>
+
+
+    <select id="getHouseCount" parameterType="map" resultType="long">
+        SELECT
+        count(1)
+        FROM
+        `house` h
+        JOIN `address` ad on h.addressId = ad.id
+        JOIN `area` ar on ad.areaId = ar.id
+        LEFT JOIN `user` u on h.ownerId = u.id
+        <where>
+            <if test="subdistrict != null">ad.subdistrict like #{subdistrict}"%"</if>
+            <if test="addressId != null">AND ad.id = #{addressId}</if>
+            <if test="building != null">AND h.building like #{building}"%"</if>
+            <if test="unit != null">AND h.unit like #{unit}"%"</if>
+            <if test="number != null">AND h.number like #{number}"%"</if>
+            <if test="areaName != null">AND ar.areaName like #{areaName}"%"</if>
+            <if test="ownerName != null">AND u.name like #{ownerName}"%"</if>
+            <if test="ownerMobile != null">AND u.mobile like #{ownerMobile}"%"</if>
+        </where>
+    </select>
+
+    <insert id="addHouse" parameterType="com.urent.server.domain.House" useGeneratedKeys="true" keyProperty="id">
+        insert INTO
+        `house`
+        (addressId, ownerId, building, unit, floor, number)
+        VALUES
+        (#{address.id}, #{owner.id}, #{building}, #{unit}, #{floor}, #{number})
+    </insert>
+
+    <update id="updateHouse" parameterType="com.urent.server.domain.House">
+        update `house`
+        <set>
+            <if test="address!=null">addressId = #{address.id},</if>
+            <if test="owner!=null">ownerId = #{owner.id},</if>
+            <if test="unit!=null">unit = #{unit},</if>
+            <if test="floor!=null">floor = #{floor},</if>
+            <if test="number!=null">number = #{number},</if>
+            <if test="building!=null">building = #{building},</if>
+        </set>
+        WHERE
+        id = #{id}
+    </update>
+
+    <delete id="deleteHouse" parameterType="com.urent.server.domain.House">
+        delete from
+        `house`
+        where
+        id = #{id}
+    </delete>
+
+    <select id="getHouseReferenceCount" parameterType="com.urent.server.domain.House" resultType="long">
+        SELECT
+        COUNT(1)
+        FROM
+        `lock`
+        WHERE
+        houseId = #{id}
+    </select>
+
+</mapper>

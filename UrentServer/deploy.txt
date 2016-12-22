@@ -1,0 +1,13 @@
+发布机器需要安装：
+1、ruby (installRuby.org, 2.2.2-x64.exe)
+2、senchar cmd v4
+
+步骤：
+1、先压缩前台代码，到/src/main/webapp/console目录下面执行：sencha app build
+   生成的代码在/build/production/Console下面
+
+2、在前台执行ant build，即可得到用于发布的war文件
+
+发布：
+在运行tomcat起来后，关掉tomcat，修改WEB-INF/classes下面的app.properties里的（appContextUrl——URL上下文）
+和log4j.properties里的日志级别，再重启tomcat

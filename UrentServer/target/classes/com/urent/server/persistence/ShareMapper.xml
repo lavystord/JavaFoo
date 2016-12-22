@@ -1,0 +1,94 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.urent.server.persistence.ShareMapper">
+
+
+ <select id="getNameByMobile" parameterType="String" resultType="com.urent.server.domain.User">
+     SELECT id,name,nickname,headerImageId,mobile
+     FROM `user`
+     WHERE mobile=#{mobile}
+
+ </select>
+
+
+<resultMap id="MySharedKeyMap" type="com.urent.server.domain.Key">
+        <id property="id" column="id"/>
+        <result property="maxTimes" column="key_maxtimes" />
+        <result property="usedTimes" column="key_usedtimes" />
+        <result property="expiredDate" column="key_expiredDate"/>
+        <result property="status" column="key_status"/>
+       <result property="type" column="key_type"/>
+        <association property="owner" javaType="com.urent.server.domain.User">
+                <id property="id" column="userId"/>
+                <result property="name" column="username"/>
+                 <result property="nickname" column="nickname"/>
+                <result property="mobile" column="mobile" />
+                <result property="headerImageId" column="headerImageId"/>
+        </association>
+</resultMap>
+
+<select id="getMySharedKeys" parameterType="map"   resultMap="MySharedKeyMap" >
+        SELECT
+
+        k.id AS id,
+        k.type AS key_type,
+        k.status AS key_status,
+        k.usedTimes AS key_usedtimes,
+        k.maxTimes AS key_maxtimes,
+        k.expiredDate AS key_expiredDate,
+        u.id AS  userId,
+        u.name AS  username,
+        u.nickname AS  nickname,
+        u.mobile AS mobile,
+        u.headerImageid AS headerImageId
+
+        FROM
+        `key` k
+        JOIN `user` u ON k.ownerId=u.id
+
+        <where>
+           k.sharedFromId=#{primaryKeyId} AND k.status=1
+        </where>
+
+        <if test="sort != null">
+                ORDER BY ${sort.property} ${sort.direction}
+        </if>
+        <if test="start != null">
+                LIMIT #{start}, #{limit}
+        </if>
+</select>
+
+<select id="getMySharedKeyCount" parameterType="map" resultType="Long">
+        SELECT
+        COUNT(1)
+        FROM
+        `key` k
+
+        <where>
+                k.sharedFromId=#{primaryKeyId} AND k.status=1
+        </where>
+
+</select>
+
+<!--
+<insert id="addMySharedKey" parameterType="com.urent.server.domain.Key"  useGeneratedKeys="true" keyProperty="id">
+INSERT INTO
+       `key`(lockId, ownerId, sharedFromId, expiredDate, maxTimes, usedTimes, alias, type, status, maxSharedCount, createDate, updateDate)
+        VALUES
+        (#{lock.id}, #{owner.id}, #{sharedFrom.id}, #{expiredDate}, #{maxTimes}, #{usedTimes}, #{alias}, #{type}, #{active}, #{maxSharedCount},
+        #{createDate}, #{updateDate})
+</insert>
+-->
+
+<!--<update id="updateMySharedKey" parameterType="com.urent.server.domain.Key" >
+UPDATE `key`
+<set>
+    <if test="maxTimes!=null" > maxTimes=#{maxTimes},</if>
+    <if test="expiredDate">expiredDate=#{expiredDate}</if>
+</set>
+    WHERE  id=#{id} AND active=1
+</update>-->
+
+</mapper>

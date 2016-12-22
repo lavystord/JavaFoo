@@ -1,0 +1,12 @@
+{
+  "user":
+  {
+    "mobile" : "13988886666",
+    "name": "张三",
+    "idCardNumber": "398087598108707123x",
+    "password": "13988886666",
+    "active": true,
+    "lastLoginDevice": "android 8k8s091"
+  },
+  "registerCode": 134566
+}

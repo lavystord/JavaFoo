@@ -1,0 +1,210 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<!--
+  Created by Administrator on 2015/8/16
+  Using template "SpringMvcMapperXml" created by Xc
+  For project UrentServer
+ 
+                                          Langya Technology
+ -->
+
+
+<mapper namespace="com.urent.server.persistence.LockMapper">
+
+    <resultMap id="LockResultMap" type="com.urent.server.domain.Lock" >
+        <id property="id" column="id" />
+        <result property="gapAddress" column="gapAddress" />
+        <result property="constantKeyWordExpiredDate" column="constantKeyWordExpiredDate" />
+        <result property="active" column="active" />
+        <result property="powerDensity" column="powerDensity"/>
+        <association property="house" javaType="com.urent.server.domain.House" >
+            <id property="id" column="houseId" />
+            <result property="building" column="building"/>
+            <result property="unit" column="unit"/>
+            <result property="floor" column="floor"/>
+            <result property="number" column="number"/>
+            <association property="address" javaType="com.urent.server.domain.Address" >
+                <id property="id" column="addressId" />
+                <result property="subdistrict" column="subdistrict" />
+                <association property="area"  javaType="com.urent.server.domain.Area">
+                    <id property="id" column="areaId"/>
+                    <result property="areaName" column="areaName"/>
+                    <result property="shortName" column="shortName"/>
+                </association>
+            </association>
+            <association property="owner" javaType="com.urent.server.domain.User">
+                <id property="id" column="ownerId"/>
+                <result property="name" column="userName"/>
+                <result property="nickname" column="nickname"/>
+                <result property="mobile" column="mobile"/>
+            </association>
+        </association>
+        <association property="type" javaType="com.urent.server.domain.LockType" >
+            <id property="id" column="typeId" />
+            <result property="name" column="locktype_name" />
+        </association>
+        <association property="currentFirmwareVersion" javaType="com.urent.server.domain.Version">
+            <id property="id" column="currentFirmwareVersionId"/>
+            <result property="major" column="version_major"/>
+            <result property="minor" column="version_minor"/>
+            <result property="type" column="version_type"/>
+            <result property="firmwareFileId" column="version_firmwareFileId"/>
+            <result property="comment" column="version_comment"/>
+        </association>
+    </resultMap>
+
+    <select id="getLocks" parameterType="map" resultMap="LockResultMap">
+        SELECT
+        l.id,
+        l.houseId,
+        l.typeId,
+        l.gapAddress,
+        l.currentFirmwareVersionId,
+        l.powerDensity,
+        l.constantKeyWordExpiredDate,
+        l.active,
+        lt.name AS locktype_name,
+        h.addressId,
+        h.building,
+        h.unit,
+        h.floor,
+        h.number,
+        h.ownerId,
+        u.name as userName,
+        u.nickname,
+        u.mobile,
+        ad.areaId,
+        ad.subdistrict,
+        a.areaName,
+        a.shortName,
+        v.major as version_major,
+        v.minor as version_minor,
+        v.type as version_type,
+        v.comment as version_comment,
+        v.firmwareFileId as version_firmwareFileId
+        FROM
+        `lock` l
+        JOIN locktype lt ON l.typeId=lt.id
+        JOIN house h ON l.houseId=h.id
+        LEFT JOIN `user` u ON h.ownerId = u.id
+        JOIN address ad ON  h.addressId=ad.id
+        JOIN area a ON  ad.areaId=a.id
+        JOIN version v ON l.currentFirmwareVersionId = v.id
+        <where>
+            <!--填写你的查询filters-->
+            <if test="subdistrict != null">ad.subdistrict = #{subdistrict}</if>
+            <if test="gapAddress != null">AND l.gapAddress LIKE #{gapAddress}"%"</if>
+            <if test="houseId != null">AND h.id = #{houseId}</if>
+        </where>
+        <if test="sort != null">
+            ORDER BY ${sort.property} ${sort.direction}
+        </if>
+        <if test="start != null">
+            LIMIT #{start}, #{limit}
+        </if>
+    </select>
+
+    <select id="getLockById" parameterType="long" resultMap="LockResultMap">
+        SELECT
+        l.id,
+        l.houseId,
+        l.typeId,
+        l.gapAddress,
+        l.constantKeyWordExpiredDate,
+        l.active,
+        l.currentFirmwareVersionId,
+        l.powerDensity,
+        lt.name AS locktype_name,
+        h.addressId,
+        h.building,
+        h.unit,
+        h.floor,
+        h.number,
+        h.number,
+        h.ownerId,
+        u.name as userName,
+        u.nickname,
+        u.mobile,
+        ad.areaId,
+        ad.subdistrict,
+        a.areaName,
+        a.shortName,
+        v.major as version_major,
+        v.minor as version_minor,
+        v.type as version_type,
+        v.comment as version_comment,
+        v.firmwareFileId as version_firmwareFileId
+        FROM
+        `lock` l
+        JOIN locktype lt ON l.typeId=lt.id
+        JOIN house h ON l.houseId=h.id
+        LEFT JOIN `user` u ON h.ownerId = u.id
+        JOIN address ad ON  h.addressId=ad.id
+        JOIN area a ON  ad.areaId=a.id
+        JOIN version v ON l.currentFirmwareVersionId = v.id
+        <where>
+                       l.id = #{id}
+        </where>
+        </select>
+
+
+    <select id="getLockCount" parameterType="map" resultType="long">
+        SELECT
+        count(1)
+        FROM
+        `lock` l
+        JOIN locktype lt ON l.typeId=lt.id
+        JOIN house h ON l.houseId=h.id
+        JOIN address ad ON  h.addressId=ad.id
+        JOIN area a ON  ad.areaId=a.id
+        <where>
+            <!--填写你的查询filters-->
+            <if test="subdistrict != null">ad.subdistrict = #{subdistrict}</if>
+            <if test="gapAddress != null">AND l.gapAddress LIKE #{gapAddress}"%"</if>
+            <if test="houseId != null">AND h.id = #{houseId}</if>
+        </where>
+    </select>
+
+    <insert id="addLock" parameterType="com.urent.server.domain.Lock" useGeneratedKeys="true" keyProperty="id">
+        insert INTO
+        `lock`
+        <!--填写你的表列名-->
+        (houseId, typeId, gapAddress, active, currentFirmwareVersionId,disposableEncryptWord, constantEncryptWord, constantKeyWord, constantKeyWordExpiredDate,powerDensity, createDate, updateDate)
+        VALUES
+        <!--填写你的属性名-->
+        (#{house.id}, #{type.id}, #{gapAddress}, #{active}, #{currentFirmwareVersion.id},#{disposableEncryptWord}, #{constantEncryptWord},
+        #{constantKeyWord}, #{constantKeyWordExpiredDate},#{powerDensity}, #{createDate}, #{updateDate})
+    </insert>
+
+    <update id="updateLock" parameterType="com.urent.server.domain.Lock">
+        update `lock`
+        <set>
+            <!--填写你的表列名-->
+            <if test="house!=null">houseId = #{house.id},</if>
+            <if test="type!=null">typeId = #{type.id},</if>
+            <if test="gapAddress!=null">gapAddress = #{gapAddress},</if>
+            <if test="active!=null">active = #{active},</if>
+            <if test="currentFirmwareVersion!=null">currentFirmwareVersionId = #{currentFirmwareVersion.id},</if>
+            <if test="disposableEncryptWord!=null">disposableEncryptWord = #{disposableEncryptWord},</if>
+            <if test="constantEncryptWord!=null">constantEncryptWord = #{constantEncryptWord},</if>
+            <if test="constantKeyWord!=null">constantKeyWord = #{constantKeyWord},</if>
+            <if test="constantKeyWordExpiredDate!=null">constantKeyWordExpiredDate = #{constantKeyWordExpiredDate},</if>
+            <if test="powerDensity!=null">powerDensity = #{powerDensity},</if>
+            <if test="createDate!=null">createDate = #{createDate},</if>
+            <if test="updateDate!=null">updateDate = #{updateDate}</if>
+        </set>
+        WHERE
+        id = #{id}
+    </update>
+
+    <delete id="deleteLock" parameterType="com.urent.server.domain.Lock">
+        delete from
+        `lock`
+        where
+        id = #{id}
+    </delete>
+
+
+</mapper>

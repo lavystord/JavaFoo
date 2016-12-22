@@ -1,0 +1,72 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+
+<mapper namespace="com.urent.server.persistence.VersionMapper">
+
+    <select id="getVersions"  parameterType="map" resultType="com.urent.server.domain.Version">
+    SELECT
+        *
+    FROM `version`
+    <where>
+        <if test="major != null">major = #{major}</if>
+        <if test="minor != null">AND minor = #{minor}</if>
+        <if test="type != null">AND `type` = #{type}</if>
+        <if test="comment != null">AND comment LIKE "%"#{comment}"%"</if>
+    </where>
+        <if test="sort != null">
+            ORDER BY ${sort.property} ${sort.direction}
+        </if>
+        <if test="start != null">
+            LIMIT #{start}, #{limit}
+        </if>
+  </select>
+
+    <select id="getVersionById" parameterType="long" resultType="com.urent.server.domain.Version">
+        SELECT
+          *
+        FROM `version`
+          where id = #{id}
+    </select>
+
+
+
+
+    <select id="getVersionCount"  parameterType="map" resultType="long">
+    SELECT
+         count(1)
+        FROM `version`
+        <where>
+            <if test="major != null">major = #{major}</if>
+            <if test="minor != null">AND minor = #{minor}</if>
+            <if test="type != null">AND `type` = #{type}</if>
+            <if test="comment != null">AND comment LIKE "%"#{comment}"%"</if>
+        </where>
+  </select>
+
+    <insert id="addVersion" parameterType="com.urent.server.domain.Version" useGeneratedKeys="true" keyProperty="id">
+        insert INTO
+        `version`(major, minor, firmwareFileId, `type`, comment, createDate)
+        VALUES (#{major}, #{minor}, #{firmwareFileId}, #{type}, #{comment}, #{createDate})
+    </insert>
+
+    <update id="updateVersion" parameterType="com.urent.server.domain.Version">
+        update `version`
+        <set>
+        <if test="comment!=null">comment = #{comment}</if>
+        </set>
+        WHERE
+        id = #{id}
+    </update>
+
+    <select id="getNewestVersion" parameterType="map" resultType="com.urent.server.domain.Version">
+        select *
+        FROM `version`
+        <where>
+            <if test="type != null">`type` = #{type}</if>
+        </where>
+        ORDER by id desc limit 0, 1
+    </select>
+
+</mapper>

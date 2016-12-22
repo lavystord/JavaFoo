@@ -1,0 +1,113 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+
+<mapper namespace="com.urent.server.persistence.AreaMapper">
+
+
+<select id="getAreas" parameterType="map" resultType="com.urent.server.domain.Area">
+    SELECT *
+    FROM `area`
+    <where>
+        <if test="parentId!= null">
+        parentId=#{parentId}
+        </if>
+        <if test="level!= null">
+            AND level=#{level}
+        </if>
+    </where>
+        ORDER BY sort
+    <if test="start != null">
+        LIMIT #{start}, #{limit}
+    </if>
+</select>
+
+
+    <select id="getAreaCount"  parameterType="map" resultType="long">
+        SELECT
+        count(1)
+        FROM `area`
+        <where>
+            <if test="parentId!= null">
+                parentId=#{parentId}
+            </if>
+            <if test="level!= null">
+                AND level=#{level}
+            </if>
+        </where>
+    </select>
+
+ <resultMap id="AreaWithAscendants" type="com.urent.server.domain.Area">
+        <id property="id" column="id4" />
+        <result property="areaName" column="areaName4" />
+        <result property="shortName" column="shortName4" />
+        <result property="level" column="level4" />
+        <result property="sort" column="sort4" />
+        <association property="parent" javaType="com.urent.server.domain.Area">
+            <id property="id" column="parentId4" />
+            <result property="areaName" column="areaName3" />
+            <result property="shortName" column="shortName3" />
+            <result property="level" column="level3" />
+            <result property="sort" column="sort3" />
+            <association property="parent" javaType="com.urent.server.domain.Area">
+                <id property="id" column="parentId3" />
+                <result property="areaName" column="areaName2" />
+                <result property="shortName" column="shortName2" />
+                <result property="level" column="level2" />
+                <result property="sort" column="sort2" />
+                <association property="parent" javaType="com.urent.server.domain.Area" >
+                    <id property="id" column="parentId2" />
+                    <result property="areaName" column="areaName1" />
+                    <result property="shortName" column="shortName1" />
+                    <result property="level" column="level1" />
+                    <result property="sort" column="sort1" />
+                </association>
+            </association>
+        </association>
+
+
+ </resultMap>
+
+<select id="getAreaWithAscendants" parameterType="long" resultMap="AreaWithAscendants">
+SELECT
+a4.id AS id4,
+a4.parentId AS parentId4,
+a4.areaName AS areaName4,
+a4.shortName AS shortName4,
+a4.level AS level4,
+a4.sort AS sort4,
+a3.id AS id3,
+a3.parentId AS parentId3,
+a3.areaName AS areaName3,
+a3.shortName AS shortName3,
+a3.level AS level3,
+a3.sort AS sort3,
+a2.id AS id2,
+a2.parentId AS parentId2,
+a2.areaName AS areaName2,
+a2.shortName AS shortName2,
+a2.level AS level2,
+a2.sort AS sort2,
+a1.id AS id1,
+a1.parentId AS parentId1,
+a1.areaName AS areaName1,
+a1.shortName AS shortName1,
+a1.level AS level1,
+a1.sort AS sort1
+
+FROM
+`area` a4 JOIN `area` a3 ON a4.parentId=a3.id
+JOIN area a2 ON a3.parentId=a2.id
+JOIN area a1 ON a2.parentId=a1.id
+
+<where>
+    a4.id=#{id}
+</where>
+
+
+
+
+</select>
+
+</mapper>

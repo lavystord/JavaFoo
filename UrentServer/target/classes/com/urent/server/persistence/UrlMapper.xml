@@ -1,0 +1,76 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<!--
+  Created by Administrator on 2015/8/19
+  Using template "SpringMvcMapperXml" created by Xc
+  For project UrentServer
+ 
+                                          Langya Technology
+ -->
+
+
+<mapper namespace="com.urent.server.persistence.UrlMapper">
+
+    <select id="getUrls" parameterType="map" resultType="com.urent.server.domain.Url">
+        SELECT
+        *
+        FROM `url`
+        <where>
+            <if test="value != null">`value like #{value}</if>
+        </where>
+        <if test="sort != null">
+            ORDER BY ${sort.property} ${sort.direction}
+        </if>
+        <if test="start != null">
+            LIMIT #{start}, #{limit}
+        </if>
+    </select>
+
+    <select id="getUrlById" parameterType="long" resultType="com.urent.server.domain.Url">
+        SELECT
+        *
+        FROM `url`
+        where id = #{id}
+    </select>
+
+
+    <select id="getUrlCount" parameterType="map" resultType="long">
+        SELECT
+        count(1)
+        FROM `url`
+        <where>
+            <if test="value != null">`value` like #{value}</if>
+        </where>
+    </select>
+
+    <insert id="addUrl" parameterType="com.urent.server.domain.Url" useGeneratedKeys="true" keyProperty="id">
+        insert INTO
+        `url`
+        <!--填写你的表列名-->
+        (value)
+        VALUES
+        <!--填写你的属性名-->
+        (#{value})
+    </insert>
+
+    <update id="updateUrl" parameterType="com.urent.server.domain.Url">
+        update `url`
+        <set>
+            <!--填写你的表列名-->
+            <if test="value!=null">value = #{value}</if>
+        </set>
+        WHERE
+        id = #{id}
+    </update>
+
+    <delete id="deleteUrl" parameterType="com.urent.server.domain.Url">
+        delete from
+        `url`
+        where
+        id = #{id}
+    </delete>
+
+
+</mapper>

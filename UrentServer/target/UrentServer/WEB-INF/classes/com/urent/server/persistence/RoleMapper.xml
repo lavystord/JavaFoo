@@ -1,0 +1,94 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+
+<mapper namespace="com.urent.server.persistence.RoleMapper">
+
+    <select id="getRoles"  parameterType="map" resultType="com.urent.server.domain.Role">
+    SELECT
+        *
+    FROM `role`
+    <where>
+        <if test="name != null">name like #"%"{name}"%"</if>
+    </where>
+        <if test="sort != null">
+            ORDER BY ${sort.property} ${sort.direction}
+        </if>
+        <if test="start != null">
+            LIMIT #{start}, #{limit}
+        </if>
+  </select>
+
+    <select id="getRoleById" parameterType="long" resultType="com.urent.server.domain.Role">
+        SELECT
+        *
+        FROM  `role`
+        WHERE id = #{id}
+    </select>
+
+    <select id="getRoleCount" parameterType ="map" resultType="long">
+        SELECT
+        count(1)
+        FROM `role` r
+        <where>
+            <if test="name != null">name like #{name}"%"</if>
+        </where>
+    </select>
+
+    <update id="updateRole" parameterType="com.urent.server.domain.Role">
+        UPDATE
+        `role`
+        <set>
+            <if test="name!=null">name = #{name},</if>
+            <if test="comment!=null">comment = #{comment},</if>
+            <if test="active!=null">active = #{active},</if>
+        </set>
+        WHERE
+        id = #{id}
+    </update>
+
+    <insert id="addRole" parameterType="com.urent.server.domain.Role" useGeneratedKeys="true" keyProperty="id">
+        insert INTO
+        `role`(name, comment, active)
+        VALUES (#{name}, #{comment}, #{active})
+    </insert>
+    
+    <select id="getUnrelatedRoles" parameterType="map" resultType="com.urent.server.domain.Role">
+        select
+        r.*
+        FROM
+        `role` r
+        WHERE
+        r.active = true AND
+        NOT EXISTS (
+          SELECT * FROM `userRole` ur
+          WHERE ur.userId = #{userId} and r.id = ur.roleId
+        )
+    </select>
+
+    <select id="getUnrelatedRoleCount" parameterType="map" resultType="long">
+        select
+        count(1)
+        FROM
+        `role` r
+        WHERE
+        r.active = true AND
+        NOT EXISTS (
+        SELECT * FROM `userRole` ur
+        WHERE ur.userId = #{userId} and r.id = ur.roleId
+        )
+    </select>
+
+    <select id="getRolesByUser" parameterType="com.urent.server.domain.User" resultType="com.urent.server.domain.Role">
+        SELECT
+        r.id,
+        r.name,
+        r.comment,
+        r.active
+        FROM role r, userRole ur
+        WHERE r.id = ur.roleId and r.active = true and ur.userId = #{id}
+    </select>
+
+
+</mapper>

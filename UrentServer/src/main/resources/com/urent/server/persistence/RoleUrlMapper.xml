@@ -1,0 +1,130 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<!--
+  Created by Administrator on 2015/8/19
+  Using template "SpringMvcMapperXml" created by Xc
+  For project UrentServer
+ 
+                                          Langya Technology
+ -->
+
+
+<mapper namespace="com.urent.server.persistence.RoleUrlMapper">
+    
+    <resultMap id="roleUrlResult" type="com.urent.server.domain.RoleUrl">
+        <id property="id" column="id"/>
+        <result property="method" column="method"/>
+        <result property="comment" column="comment"/>
+        <association property="role" column="roleId" javaType="com.urent.server.domain.Role">
+            <id property="id" column="roleId"/>
+            <result property="name" column="name"/>
+        </association>
+        <association property="url" column="urlId" javaType="com.urent.server.domain.Url">
+            <id property="id" column="urlId"/>
+            <result property="value" column="value"/>
+        </association>
+    </resultMap>
+
+    <select id="getRoleUrls" parameterType="map" resultMap="roleUrlResult">
+        SELECT
+        ru.*,
+        u.value,
+        r.name
+        FROM `roleUrl` ru
+        JOIN `url` u ON ru.urlId = u.id
+        JOIN `role` r ON ru.roleId = r.id
+        <where>
+            r.active = true
+            <if test="value != null">AND u.value= #{value}</if>
+            <if test="urlId != null">AND ru.urlId= #{urlId}</if>
+            <if test="url != null">AND u.value = #{url}</if>
+            <if test="method != null">AND ru.method = #{method}</if>
+            <if test="roleName != null">AND r.name like #{roleName}"%"</if>
+            <if test="roleId != null">AND ru.roleId = #{roleId}</if>
+            <if test="roles != null">AND ru.roleId in
+                <foreach collection="roles"  item="role" open="(" close=")" separator=",">#{role.id}</foreach>
+            </if>
+        </where>
+        <if test="sort != null">
+            ORDER BY ${sort.property} ${sort.direction}
+        </if>
+        <if test="start != null">
+            LIMIT #{start}, #{limit}
+        </if>
+    </select>
+
+    <select id="getRoleUrlById" parameterType="long" resultMap="roleUrlResult">
+        SELECT
+        ru.*,
+        u.value,
+        r.name
+        FROM `roleUrl` ru
+        JOIN `url` u ON ru.urlId = u.id
+        JOIN `role` r ON ru.roleId = r.id
+        <where>
+            id = #{id}
+            AND r.active = true
+            <if test="value != null">AND u.value= #{value}</if>
+            <if test="urlId != null">AND ru.urlId= #{urlId}</if>
+            <if test="url != null">AND u.value = #{url}</if>
+            <if test="method != null">AND ru.method = #{method}</if>
+            <if test="roleName != null">AND r.name like #{roleName}"%"</if>
+            <if test="roleId != null">AND ru.roleId = #{roleId}</if>
+            <if test="roles != null">AND ru.roleId in
+                <foreach collection="roles"  item="role" open="(" close=")" separator=",">#{role.id}</foreach>
+            </if>
+        </where>
+    </select>
+
+
+    <select id="getRoleUrlCount" parameterType="map" resultType="long">
+        SELECT
+        count(1)
+        FROM `roleUrl` ru
+        JOIN `url` u ON ru.urlId = u.id
+        JOIN `role` r ON ru.roleId = r.id
+        <where>
+            r.active = true
+            <if test="value != null">AND u.value= #{value}</if>
+            <if test="urlId != null">AND ru.urlId= #{urlId}</if>
+            <if test="url != null">AND u.value = #{url}</if>
+            <if test="method != null">AND ru.method = #{method}</if>
+            <if test="roleName != null">AND r.name like #{roleName}"%"</if>
+            <if test="roleId != null">AND ru.roleId = #{roleId}</if>
+            <if test="roles != null">AND ru.roleId in
+                <foreach collection="roles"  item="role" open="(" close=")" separator=",">#{role.id}</foreach>
+            </if>
+        </where>
+    </select>
+
+    <insert id="addRoleUrl" parameterType="com.urent.server.domain.RoleUrl" useGeneratedKeys="true" keyProperty="id">
+        insert INTO
+        `roleUrl`
+        <!--填写你的表列名-->
+        (urlId, roleId, method, comment)
+        VALUES
+        <!--填写你的属性名-->
+        (#{url.id}, #{role.id}, #{method}, #{comment})
+    </insert>
+
+    <update id="updateRoleUrl" parameterType="com.urent.server.domain.RoleUrl">
+        update `roleUrl`
+        <set>
+            <!--填写你的表列名-->
+            <if test="comment!=null">comment = #{comment}</if>
+        </set>
+        WHERE
+        id = #{id}
+    </update>
+
+    <delete id="deleteRoleUrl" parameterType="com.urent.server.domain.RoleUrl">
+        delete from
+        `roleUrl`
+        where
+        id = #{id}
+    </delete>
+
+
+</mapper>

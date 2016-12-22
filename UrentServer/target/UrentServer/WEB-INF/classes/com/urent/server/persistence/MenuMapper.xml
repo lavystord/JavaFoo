@@ -1,0 +1,84 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+
+<mapper namespace="com.urent.server.persistence.MenuMapper">
+
+    <select id="getAllMenus" resultType="com.urent.server.domain.Menu">
+    SELECT
+        *
+    FROM menu
+  </select>
+
+    <select id="getLeafMenusByRoles" resultType="com.urent.server.domain.AppMenu">
+        SELECT
+        m.id,
+        m.name,
+        m.dest,
+        m.leaf,
+        m.parentId
+        FROM menu m, rolemenu rm
+        WHERE m.id = rm.menuId and m.leaf = true
+        <if test="list!=null">
+            and rm.roleId in
+            <foreach collection="list" item="role" open="(" close=")" separator=",">#{role.id}</foreach></if>
+        and not exists (
+          select m2.id from menu m2, rolemenu rm2 where m2.leaf = true and m2.parentId = m.id
+          and m2.id = rm2.menuId
+        <if test="list!=null">
+            and rm2.roleId in
+            <foreach collection="list" item="role" open="(" close=")" separator=",">#{role.id}</foreach></if>
+        )
+    </select>
+
+    <select id="getMenuById" parameterType="int" resultType="com.urent.server.domain.AppMenu">
+        SELECT
+        *
+        FROM menu m
+        WHERE m.id = #{id}
+    </select>
+
+    <select id="getAclsByMenuAndRole" parameterType="map" resultType="com.urent.server.domain.Acl">
+        SELECT
+        `create`,
+        `update`,
+        `read`,
+        `deletee`
+        FROM roleMenu
+        WHERE menuId=#{menu.id} and roleId in
+        <foreach collection="roles"  item="role" open="(" close=")" separator=",">#{role.id}</foreach>
+    </select>
+
+    <select id="getUnrelatedMenus" parameterType="map" resultType="com.urent.server.domain.Menu">
+        SELECT
+        m.*
+        FROM
+        `menu`m
+        WHERE
+        m.leaf = true AND
+        NOT EXISTS (
+         SELECT  *
+         FROM
+         `roleMenu` rm
+         where
+         m.id = rm.menuId and rm.roleId = #{roleId}
+        )
+    </select>
+
+    <select id="getUnrelatedMenuCount" parameterType="map" resultType="long">
+         SELECT
+        count(1)
+        FROM
+        `menu`m
+        WHERE
+        m.leaf = true AND
+        NOT EXISTS (
+         SELECT  *
+         FROM
+         `roleMenu` rm
+         where
+         m.id = rm.menuId and rm.roleId = #{roleId}
+        )
+    </select>
+</mapper>

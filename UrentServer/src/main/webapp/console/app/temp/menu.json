@@ -1,0 +1,63 @@
+[
+    {
+        "id": 5,
+        "name": "用户管理",
+        "loaded": true,
+        "children": [
+          {
+            "id": 7,
+            "name": "用户管理",
+            "dest": "UserManage",
+            "leaf": true,
+            "acl": {
+              "create": false,
+              "update": false,
+              "read": true,
+              "deletee": false
+            },
+            "children": [
+              {
+                "id": 9,
+                "name": "用户角色管理",
+                "dest": "UserRole",
+                "leaf": true,
+                "acl": {
+                  "create": true,
+                  "update": false,
+                  "read": true,
+                  "deletee": true
+
+                }
+              }
+            ]
+          },
+          {
+            "id": 11,
+            "name": "角色管理",
+            "dest": "RoleManage",
+            "leaf": true,
+            "acl": {
+              "create": true,
+              "update": true,
+              "read": true,
+              "deletee": false
+            },
+            "children": [
+              {
+                "id": 9,
+                "name": "用户角色管理",
+                "dest": "UserRole",
+                "leaf": true,
+                "acl": {
+                  "create": false,
+                  "update": false,
+                  "read": true,
+                  "deletee": true
+
+                }
+              }
+            ]
+          }
+        ]
+    }
+]

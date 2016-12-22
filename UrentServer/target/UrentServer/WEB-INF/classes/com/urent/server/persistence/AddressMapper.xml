@@ -1,0 +1,96 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.urent.server.persistence.AddressMapper">
+
+
+    <insert id="addAddress" parameterType="com.urent.server.domain.Address" useGeneratedKeys="true" keyProperty="id">
+        insert INTO
+        `address`(areaId, subdistrict, longitude,latitude)
+        VALUES (#{area.id}, #{subdistrict}, #{longitude}, #{latitude})
+    </insert>
+
+    <resultMap id="AddressesResultMap" type="com.urent.server.domain.Address">
+        <id property="id" column="id"/>
+        <result property="subdistrict" column="subdistrict" />
+        <result property="longitude" column="longitude" />
+        <result property="latitude" column="latitude" />
+        <association property="area" javaType="com.urent.server.domain.Area" >
+            <id property="id" column="areaId"/>
+            <result property="areaName" column="areaName" />
+        </association>
+    </resultMap>
+
+
+
+    <select id="getAddresses" parameterType="map" resultMap="AddressesResultMap">
+        SELECT
+        a1.*,a2.areaName
+        FROM
+        `address` a1 JOIN area a2 ON  a1.areaId=a2.id
+        <where>
+            <if test="subdistrict != null">subdistrict LIKE #{subdistrict}"%"</if>
+        </where>
+        <if test="sort != null">
+            ORDER BY ${sort.property} ${sort.direction}
+        </if>
+        <if test="start != null">
+            LIMIT #{start}, #{limit}
+        </if>
+    </select>
+
+
+   <select id="getAddress" parameterType="long" resultMap="AddressesResultMap" >
+       SELECT *
+       FROM `address`
+       <where>
+           id=#{id}
+       </where>
+   </select>
+
+
+
+    <select id="getAddressCount"  parameterType="map" resultType="long">
+        SELECT
+        count(1)
+        FROM `address` ad, `area` a
+        <where>
+            ad.areaId=a.id
+            <if test="subdistrict != null"> AND subdistrict LIKE #{subdistrict}"%"</if>
+        </where>
+    </select>
+
+
+
+
+    <update id="updateAddress" parameterType="com.urent.server.domain.Address">
+        update `address`
+        <set>
+            <if test="subdistrict!=null">subdistrict = #{subdistrict},</if>
+            <if test="longitude!=null">longitude = #{longitude},</if>
+            <if test="latitude!=null">latitude = #{latitude},</if>
+            <if test="area!=null">areaId = #{area.id},</if>
+        </set>
+        WHERE
+        id = #{id}
+    </update>
+
+
+    <select id="getAssociatedHouseCount" parameterType="com.urent.server.domain.Address"  resultType="int">
+       SELECT
+       COUNT(1)
+       FROM  `house`
+        <where>
+            <if test="id!= null">addressId=#{id}</if>
+        </where>
+    </select>
+
+
+    <delete id="deleteAddress" parameterType="com.urent.server.domain.Address" >
+        DELETE FROM
+        `address`
+        WHERE
+        #{id} = id
+   </delete>
+
+</mapper>
